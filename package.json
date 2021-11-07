@@ -10,7 +10,7 @@
     "preserve": "npm run build",
     "serve": "cross-env NODE_ENV=development concurrently \"tsc --watch\" \"nodemon -q dist/index.js\"",
     "prestart": "",
-    "start": "cross-env NODE_ENV=production ts-node index.ts",
+    "start": "cross-env ts-node index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublishOnly": "pinst --disable",
     "postpublish": "pinst --enable"
@@ -27,13 +27,6 @@
   },
   "homepage": "https://github.com/cryptus-neoxys/glocal-shop-backend#readme",
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.2",
-    "@types/body-parser": "^1.19.1",
-    "@types/cors": "^2.8.12",
-    "@types/express": "^4.17.13",
-    "@types/jsonwebtoken": "^8.5.5",
-    "@types/mongoose": "^5.11.97",
-    "@types/node": "^16.11.6",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "eslint-config-airbnb-base": "^14.2.1",
@@ -46,6 +39,13 @@
     "prettier": "^2.4.1"
   },
   "dependencies": {
+    "@types/bcryptjs": "^2.4.2",
+    "@types/body-parser": "^1.19.1",
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
+    "@types/jsonwebtoken": "^8.5.5",
+    "@types/mongoose": "^5.11.97",
+    "@types/node": "^16.11.6",
     "bcryptjs": "^2.4.3",
     "concurrently": "^6.3.0",
     "cors": "^2.8.5",
