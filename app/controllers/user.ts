@@ -1,0 +1,84 @@
+/** load required packages */
+import { hash } from "bcryptjs";
+import { Request, Response } from "express";
+import { BCRYPT_SALT } from "../config/config";
+
+/** load peer modules and services */
+import { apiResponse } from "../helpers/apiResponse";
+import { UserModel, User } from "../models/user";
+
+const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    const users: User[] = await UserModel.find().limit(100);
+    if (!users) {
+      apiResponse.notFoundResponse(res, "No users found");
+      return;
+    }
+    apiResponse.successResponseWithData(res, "Operation success", users);
+  } catch (e) {
+    apiResponse.ErrorResponse(res, (e as Error).message);
+  }
+};
+
+const getOneUser = async (req: Request, res: Response) => {
+  try {
+    const user = await UserModel.find(req.body);
+    if (!user) {
+      apiResponse.notFoundResponse(res, "No users found");
+      return;
+    }
+    apiResponse.successResponseWithData(res, "Operation success", user);
+  } catch (e) {
+    apiResponse.ErrorResponse(res, (e as Error).message);
+  }
+};
+
+const register = async (req: Request, res: Response) => {
+  try {
+    const { name, email, avatar, phoneNum, address, balance } = req.body;
+    const password = await hash(req.body.password, BCRYPT_SALT);
+    const customId = `${phoneNum}@glocal`;
+
+    const user: User = await UserModel.create({
+      name,
+      email,
+      avatar,
+      password,
+      phoneNum,
+      address,
+      balance,
+      customId,
+    });
+
+    apiResponse.successResponseWithData(res, "User created successfully", user);
+  } catch (e) {
+    apiResponse.ErrorResponse(res, (e as Error).message);
+  }
+};
+
+const update = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const user: User | null = await UserModel.findByIdAndUpdate(id, req.body);
+    if (!user) {
+      apiResponse.notFoundResponse(res, "No users found");
+      return;
+    }
+    apiResponse.successResponseWithData(res, "User updated successfully", user);
+    res.send("Hi!");
+  } catch (e) {
+    apiResponse.ErrorResponse(res, (e as Error).message);
+  }
+};
+
+const deleteUser = async (req: Request, res: Response) => {
+  try {
+    // Delete user
+    // return apiResponse.successResponse(res, "User delete Success.");
+    res.send("Hi!");
+  } catch (e) {
+    apiResponse.ErrorResponse(res, (e as Error).message);
+  }
+};
+
+export const user = { getAllUsers, getOneUser, register, update, deleteUser };
