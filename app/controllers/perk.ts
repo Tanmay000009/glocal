@@ -34,12 +34,15 @@ const getOnePerk = async (req: Request, res: Response) => {
 };
 
 const register = async (req: Request, res: Response) => {
-  const { shop, type, value } = req.body;
+  const { shop, type, value, feedback, perkName, maxValue } = req.body;
   try {
     const perk = new PerkModel({
       shop,
       type,
       value,
+      feedback,
+      perkName,
+      maxValue,
     });
     const newPerk = await perk.save();
     return apiResponse.successResponseWithData(
