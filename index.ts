@@ -9,6 +9,7 @@ import ShopRoutes from "./app/routes/shop";
 import PerkRoutes from "./app/routes/perks";
 import AuthRouter from "./app/routes/auth";
 import TransactionRouter from "./app/routes/transaction";
+import CashBackRouter from "./app/routes/cashback";
 import initializeMongoDB from "./app/database/db";
 
 initializeMongoDB();
@@ -34,5 +35,6 @@ app.use("/api/shops", ShopRoutes);
 app.use("/api/perks", PerkRoutes);
 app.use("/api/perks", PerkRoutes);
 app.use("/api/transaction", TransactionRouter);
+app.use("/api/cashback", CashBackRouter);
 
 app.listen(PORT, () => console.log(`Running on ${PORT} ⚡`));

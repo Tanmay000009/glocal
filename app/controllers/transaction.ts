@@ -4,13 +4,20 @@ import { ObjectId } from "mongoose";
 
 /** load peer modules and services */
 import { apiResponse } from "../helpers/apiResponse";
+import { CashBackModel } from "../models/cashback";
 import { PerkModel } from "../models/perk";
 import { ShopModel } from "../models/shop";
 import { TransactionModel } from "../models/transaction";
 import { UserModel, User } from "../models/user";
 
 /** To deposit cashback in users account */
-const cashback = async (transactionId: ObjectId): Promise<string> => {
+const cashback = async (
+  transactionId: ObjectId,
+  amount: number,
+  uid: string,
+  shop: ObjectId,
+  user: ObjectId
+): Promise<string> => {
   try {
     const transaction = await TransactionModel.findById(transactionId);
     if (!transaction) {
@@ -21,19 +28,24 @@ const cashback = async (transactionId: ObjectId): Promise<string> => {
       await transaction.save();
       return "Invalid transaction!";
     }
-    const userId = transaction.user;
-    const user = await UserModel.findById(userId);
-    if (!user) {
+    const dbUser = await UserModel.findById(user);
+    if (!dbUser) {
       transaction.status = "spam";
       await transaction.save();
       return "Invalid transaction! ";
     }
-    let bal = user.balance;
+    let bal = dbUser.balance;
     bal += transaction.CashbackAmount;
-    user.balance = bal;
-    await user.save();
+    dbUser.balance = bal;
+    await dbUser.save();
     transaction.status = "approved";
     await transaction.save();
+    await new CashBackModel({
+      amount,
+      user,
+      uid,
+      shop,
+    }).save();
     return "success Cashback processed";
   } catch (e) {
     return (e as Error).message;
@@ -230,7 +242,13 @@ const approve = async (req: Request, res: Response) => {
           Perk.generatedRevenue += transaction.amount;
           await Perk.save();
           await transaction.save();
-          const cashBackRes = await cashback(transaction._id);
+          const cashBackRes = await cashback(
+            transaction._id,
+            transaction.CashbackAmount,
+            transaction.uid,
+            transaction.shop,
+            transaction.user
+          );
           if (!cashBackRes.includes("success")) {
             apiResponse.ErrorResponse(res, cashBackRes);
             return;
