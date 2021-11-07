@@ -1,11 +1,8 @@
-import { Router } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 
 // /** load the service */
 import { shop as ShopController } from "../controllers/shop";
-// import {
-//   shopValidationRules,
-//   validate,
-// } from "../app/validators/shop.validator";
+import { shopValidationRules, validate } from "../validators/shop";
 
 const router: Router = Router();
 
@@ -16,12 +13,44 @@ router.get("/", ShopController.getAllShops);
 router.get("/:id", ShopController.getOneShop);
 
 // /** to register a shop */
-// shopValidationRules(), validate,
-router.post("/", ShopController.register);
+router.post(
+  "/",
+  shopValidationRules(),
+  validate,
+  (req: Request, res: Response, next: NextFunction) => {
+    const feedback = req.body.feedback as number;
+    if (feedback) {
+      if (feedback > 3 || feedback < 1) {
+        res.status(422).json({
+          error: "Feedback can only have one of the 3 values: 1 or 2 or 3",
+        });
+        return;
+      }
+    }
+    next();
+  },
+  ShopController.register
+);
 
 // /** to update a shop */
-// shopValidationRules(), validate,
-router.put("/:id", ShopController.update);
+router.put(
+  "/:id",
+  shopValidationRules(),
+  validate,
+  (req: Request, res: Response, next: NextFunction) => {
+    const feedback = req.body.feedback as number;
+    if (feedback) {
+      if (feedback > 3 || feedback < 1) {
+        res.status(422).json({
+          error: "Feedback can only have one of the 3 values: 1 or 2 or 3",
+        });
+        return;
+      }
+    }
+    next();
+  },
+  ShopController.update
+);
 
 // /** to delete a shop */
 // router.delete("/:id", ShopController.deleteShop);
