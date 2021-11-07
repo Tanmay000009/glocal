@@ -17,7 +17,7 @@ const router = Router();
 router.get("/", AuthController.currentUser);
 
 /** to authenticate a user */
-router.post("/", AuthController.authenticate);
+router.post("/", AuthController.login);
 
 /** export the routes to be binded to application */
 export default router;

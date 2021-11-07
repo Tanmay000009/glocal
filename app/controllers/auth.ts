@@ -60,7 +60,7 @@ const currentUser = async (req: Request, res: Response) => {
 };
 
 /** Authenticate a user */
-const authenticate = async (req: Request, res: Response) => {
+const login = async (req: Request, res: Response) => {
   const { email, password, userType } = req.body;
   try {
     // find user
@@ -102,4 +102,4 @@ const authenticate = async (req: Request, res: Response) => {
   }
 };
 
-export const auth = { currentUser, authenticate };
+export const auth = { currentUser, login };
