@@ -1,6 +1,7 @@
 import express, { Express, Request, Response } from "express";
 import helmet from "helmet";
 import dotenv from "dotenv";
+import cors from "cors";
 
 /** load modules as routes */
 import UserRoutes from "./app/routes/user";
@@ -21,7 +22,7 @@ const app: Express = express();
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded());
-
+app.use(cors());
 app.get("/", (req: Request, res: Response) => {
   res.send("<h1>Hello from the TS world!</h1>");
 });
