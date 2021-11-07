@@ -158,7 +158,81 @@ const userLoan = async (req: Request, res: Response) => {
       LoanUser
     );
   } catch (e) {
-    console.log(e);
+    apiResponse.ErrorResponse(res, (e as Error).message);
+  }
+};
+
+const repayLoan = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const LoanUser = await LoanUserModel.findById(id);
+    if (!LoanUser) {
+      apiResponse.ErrorResponse(
+        res,
+        "Request cannot be processed. Please recheck fields!"
+      );
+      return;
+    }
+
+    const Loan = await LoanModel.findById(LoanUser.loan);
+    const Shop = await ShopModel.findById(LoanUser.shop);
+    const User = await UserModel.findById(LoanUser.user);
+
+    const { amountLoaned } = LoanUser;
+    if (!Shop || !User || (!Shop && !User)) {
+      apiResponse.ErrorResponse(
+        res,
+        "Request cannot be processed. Please recheck fields!"
+      );
+      return;
+    }
+    if (amountLoaned === 0) {
+      apiResponse.ErrorResponse(
+        res,
+        "Request cannot be processed. Please recheck fields!"
+      );
+      return;
+    }
+    if (!Loan) {
+      apiResponse.ErrorResponse(
+        res,
+        "Request cannot be processed. Please recheck fields!"
+      );
+      return;
+    }
+    // deduct amount from shop
+    if (Shop.balance < amountLoaned) {
+      apiResponse.ErrorResponse(
+        res,
+        "Transaction cancelled due to insufficent funds"
+      );
+      return;
+    }
+    Shop.balance -= amountLoaned;
+    User.balance += amountLoaned;
+    Shop.loanUnpaidAmount -= amountLoaned;
+    Loan.amountUnpaid -= amountLoaned;
+    if (Loan.amountUnpaid === 0 && Loan.amountLoaned === Loan.amount) {
+      Loan.status = "paid";
+    }
+    LoanUser.status = "paid";
+
+    await LoanUser.save();
+
+    await Shop.save();
+
+    await Loan.save();
+
+    await User.save();
+
+    apiResponse.successResponseWithData(
+      res,
+      "Succesfully repayed loan",
+      LoanUser
+    );
+    return;
+  } catch (e) {
     apiResponse.ErrorResponse(res, (e as Error).message);
   }
 };
@@ -173,4 +247,11 @@ const deleteLoan = async (req: Request, res: Response) => {
   }
 };
 
-export const loan = { getAllLoans, getOneLoan, register, userLoan, deleteLoan };
+export const loan = {
+  getAllLoans,
+  getOneLoan,
+  register,
+  userLoan,
+  repayLoan,
+  deleteLoan,
+};
