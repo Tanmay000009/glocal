@@ -1,5 +1,5 @@
 /** load required packages */
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { decode, sign, verify } from "jsonwebtoken";
 import { compare } from "bcryptjs";
 
@@ -12,7 +12,6 @@ import { ShopModel } from "../models/shop";
 
 interface IJWTPayload {
   email: string;
-  password: string;
   userType: string;
   issued: Number;
   expires: Number;
@@ -80,7 +79,6 @@ const login = async (req: Request, res: Response) => {
     // sign token
     const payload: IJWTPayload = {
       email,
-      password,
       userType,
       issued: Date.now(),
       expires: Date.now() + 24 * 60 * 60 * 1000,
@@ -102,4 +100,33 @@ const login = async (req: Request, res: Response) => {
   }
 };
 
-export const auth = { currentUser, login };
+const authMW = (req: Request, res: Response, next: NextFunction) => {
+  // Get the token from the header
+  if (!req.headers.authorization) {
+    apiResponse.validationErrorWithData(res, "Request without token", {
+      success: false,
+    });
+    return;
+  }
+  const auth = req.headers.authorization.split(" ");
+  if (auth.length !== 2) {
+    apiResponse.ErrorResponse(res, "Invalid bearer token format");
+    return;
+  }
+  try {
+    const token = auth[1];
+
+    if (!verify(token, JWT_SECRET)) {
+      apiResponse.unauthorizedResponse(res, "Could not authenticate");
+      return;
+    }
+
+    const decoded = decode(token);
+    res.locals.user = decoded;
+    next();
+  } catch (err) {
+    res.status(401).json({ msg: "Unauthorized access!" });
+  }
+};
+
+export const auth = { currentUser, login, authMW };
