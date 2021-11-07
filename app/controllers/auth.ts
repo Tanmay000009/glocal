@@ -64,6 +64,7 @@ const login = async (req: Request, res: Response) => {
   try {
     // find user
     let user;
+    let match = false;
 
     if (userType === "user") {
       user = await UserModel.findOne({ email });
@@ -74,7 +75,13 @@ const login = async (req: Request, res: Response) => {
       apiResponse.notFoundResponse(res, "User not found");
       return;
     }
-    const match = await compare(password, user.password);
+
+    if (userType === "user") {
+      match = await compare(password, user.password);
+    } else if (userType === "shop") {
+      match = password === user.password;
+    }
+
     console.log({ password, match });
     console.log(user.password);
     // verify user
