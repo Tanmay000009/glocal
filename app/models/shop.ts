@@ -10,7 +10,6 @@ export interface Shop extends Document {
   balance?: Number;
   customId: string;
   earning?: Number;
-  feedback?: Number;
 }
 
 const schema = new Schema<Shop>({
@@ -23,7 +22,6 @@ const schema = new Schema<Shop>({
   balance: { type: Number, required: true, default: 0 },
   customId: { type: String, unique: true },
   earning: { type: Number, default: 0 },
-  feedback: { type: Number, max: 3, min: 1 }, // 1 = bad | 2 = med | 3 = good
 });
 
 export const ShopModel = model<Shop>("Shop", schema);

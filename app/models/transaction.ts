@@ -13,6 +13,7 @@ interface Transaction extends Document {
   shopId: string;
   userNumber?: Number;
   shopNumber?: Number;
+  shopFeedback?: Number;
 }
 
 const schema = new Schema<Transaction>(
@@ -29,6 +30,7 @@ const schema = new Schema<Transaction>(
     perk: { type: Schema.Types.ObjectId, ref: "Perk" },
     perkValue: { type: Number },
     amount: { type: Number, required: true },
+    shopFeedback: { type: Number, max: 3, min: 1 },
   },
   { timestamps: true }
 );
