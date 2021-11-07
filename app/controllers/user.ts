@@ -71,7 +71,6 @@ const update = async (req: Request, res: Response) => {
       return;
     }
     apiResponse.successResponseWithData(res, "User updated successfully", user);
-    res.send("Hi!");
   } catch (e) {
     apiResponse.ErrorResponse(res, (e as Error).message);
   }
@@ -79,9 +78,7 @@ const update = async (req: Request, res: Response) => {
 
 const deleteUser = async (req: Request, res: Response) => {
   try {
-    // Delete user
-    // return apiResponse.successResponse(res, "User delete Success.");
-    res.send("Hi!");
+    res.send("Cannot be processed!");
   } catch (e) {
     apiResponse.ErrorResponse(res, (e as Error).message);
   }
