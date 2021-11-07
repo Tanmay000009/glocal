@@ -1,11 +1,7 @@
-import { Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 
 // /** load the service */
 import { perk as PerkController } from "../controllers/perk";
-// import {
-//   perkValidationRules,
-//   validate,
-// } from "../app/validators/shop.validator";
 
 const router: Router = Router();
 
@@ -16,15 +12,43 @@ router.get("/", PerkController.getAllPerks);
 router.get("/:id", PerkController.getOnePerk);
 
 // /** to register a perk */
-// perkValidationRules(), validate,
-router.post("/", PerkController.register);
+router.post(
+  "/",
+  (req: Request, res: Response, next: NextFunction) => {
+    const feedback = req.body.feedback as number;
+    if (feedback) {
+      if (feedback > 3 || feedback < 1) {
+        res.status(422).json({
+          error: "Feedback can only have one of the 3 values: 1 or 2 or 3",
+        });
+        return;
+      }
+    }
+    next();
+  },
+  PerkController.register
+);
 
 // /** to update a perk */
-// perkValidationRules(), validate,
-router.put("/:id", PerkController.update);
+router.put(
+  "/:id",
+  (req: Request, res: Response, next: NextFunction) => {
+    const feedback = req.body.feedback as number;
+    if (feedback) {
+      if (feedback > 3 || feedback < 1) {
+        res.status(422).json({
+          error: "Feedback can only have one of the 3 values: 1 or 2 or 3",
+        });
+        return;
+      }
+    }
+    next();
+  },
+  PerkController.update
+);
 
 // /** to delete a perk */
-// router.delete("/:id", PerkController.deletePerk);
+router.delete("/:id", PerkController.deletePerk);
 
 /** export the routes to be binded to application */
 export default router;
