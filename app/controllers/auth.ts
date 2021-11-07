@@ -63,7 +63,13 @@ const login = async (req: Request, res: Response) => {
   const { email, password, userType } = req.body;
   try {
     // find user
-    const user = await UserModel.findOne({ email });
+    let user;
+
+    if (userType === "user") {
+      user = await UserModel.findOne({ email });
+    } else if (userType === "shop") {
+      user = await ShopModel.findOne({ email });
+    }
     if (!user) {
       apiResponse.notFoundResponse(res, "User not found");
       return;
