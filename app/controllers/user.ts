@@ -1,7 +1,6 @@
 /** load required packages */
 import { hash } from "bcryptjs";
 import { Request, Response } from "express";
-import { BCRYPT_SALT } from "../config/config";
 
 /** load peer modules and services */
 import { apiResponse } from "../helpers/apiResponse";
@@ -35,8 +34,8 @@ const getOneUser = async (req: Request, res: Response) => {
 
 const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, avatar, phoneNum, address, balance } = req.body;
-    const password = await hash(req.body.password, BCRYPT_SALT);
+    const { name, email, avatar, phoneNum, address, balance, dob } = req.body;
+    const password = await hash(req.body.password, 8);
     const customId = `${phoneNum}@glocal`;
 
     const user: User = await UserModel.create({
@@ -48,6 +47,7 @@ const register = async (req: Request, res: Response) => {
       address,
       balance,
       customId,
+      dob,
     });
 
     apiResponse.successResponseWithData(res, "User created successfully", user);
@@ -59,7 +59,13 @@ const register = async (req: Request, res: Response) => {
 const update = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const user: User | null = await UserModel.findByIdAndUpdate(id, req.body);
+    let user;
+    if (req.body.password) {
+      const password = await hash(req.body.password, 8);
+      user = await UserModel.findByIdAndUpdate(id, { ...req.body, password });
+    } else {
+      user = await UserModel.findByIdAndUpdate(id, req.body);
+    }
     if (!user) {
       apiResponse.notFoundResponse(res, "No users found");
       return;
