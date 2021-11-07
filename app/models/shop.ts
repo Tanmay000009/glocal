@@ -1,4 +1,4 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model, Document, ObjectId } from "mongoose";
 
 export interface Shop extends Document {
   name: string;
@@ -10,6 +10,11 @@ export interface Shop extends Document {
   balance: number;
   customId: string;
   earning: number;
+  activeLoans: number;
+  totalLoans: number;
+  totalLoanAmount: number; // Paid or unpaid loan amount
+  loanUnpaidAmount: number; // Loan amount yet to be paid
+  loans: Array<ObjectId>;
 }
 
 const schema = new Schema<Shop>({
@@ -22,6 +27,15 @@ const schema = new Schema<Shop>({
   balance: { type: Number, required: true, default: 0 },
   customId: { type: String, unique: true },
   earning: { type: Number, default: 0 },
+  activeLoans: { type: Number, default: 0 },
+  totalLoans: { type: Number, default: 0 },
+  totalLoanAmount: { type: Number, default: 0 },
+  loanUnpaidAmount: { type: Number, default: 0 },
+  loans: [
+    {
+      type: Schema.Types.ObjectId,
+    },
+  ],
 });
 
 export const ShopModel = model<Shop>("Shop", schema);

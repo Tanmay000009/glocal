@@ -11,6 +11,7 @@ export interface User extends Document {
   balance: number;
   customId: string;
   dob: string;
+  loans: Array<ObjectId>;
 }
 
 const schema = new Schema<User>({
@@ -23,6 +24,11 @@ const schema = new Schema<User>({
   balance: { type: Number, required: true, default: 10_00_000 },
   customId: { type: String, unique: true },
   dob: { type: String, required: true },
+  loans: [
+    {
+      type: Schema.Types.ObjectId,
+    },
+  ],
 });
 
 export const UserModel = model<User>("User", schema);
