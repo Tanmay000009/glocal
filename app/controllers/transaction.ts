@@ -92,8 +92,14 @@ const register = async (req: Request, res: Response) => {
 
 const approve = async (req: Request, res: Response) => {
   try {
-    const { perk, discountedAmount, CashbackAmount, perkValue, perkType } =
-      req.body;
+    const {
+      perk,
+      feedback,
+      discountedAmount,
+      CashbackAmount,
+      perkValue,
+      perkType,
+    } = req.body;
     const Perk = await PerkModel.findById(perk);
     const transaction = await TransactionModel.findById(req.params.id);
     if (transaction) {
@@ -136,6 +142,11 @@ const approve = async (req: Request, res: Response) => {
           transaction.perk = Perk._id;
           transaction.perkValue = Perk.value;
           await transaction.save();
+          if (feedback === 1) Perk.feedback1 += 1;
+          else if (feedback === 2) Perk.feedback2 += 1;
+          else if (feedback === 3) Perk.feedback3 += 1;
+          Perk.generatedRevenue += transaction.amount;
+          await Perk.save();
           apiResponse.successResponseWithData(
             res,
             "Transaction succesful",
@@ -181,6 +192,11 @@ const approve = async (req: Request, res: Response) => {
           transaction.perkType = Perk.type;
           transaction.perk = Perk._id;
           transaction.perkValue = Perk.value;
+          if (feedback === 1) Perk.feedback1 += 1;
+          else if (feedback === 2) Perk.feedback2 += 1;
+          else if (feedback === 3) Perk.feedback3 += 1;
+          Perk.generatedRevenue += transaction.amount;
+          await Perk.save();
           await transaction.save();
           apiResponse.successResponseWithData(
             res,
