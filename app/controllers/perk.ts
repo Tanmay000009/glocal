@@ -36,14 +36,14 @@ const getOnePerk = async (req: Request, res: Response) => {
 const register = async (req: Request, res: Response) => {
   const { shop, type, value, feedback, perkName, maxValue } = req.body;
   try {
-    let perkExists = await PerkModel.find({
+    let perkExists = await PerkModel.findOne({
       perkName,
     });
     if (perkExists) {
       apiResponse.ErrorResponse(res, "Duplicate data, perk already exists");
       return;
     }
-    perkExists = await PerkModel.find({
+    perkExists = await PerkModel.findOne({
       type,
       value,
       perkName,
@@ -95,4 +95,22 @@ const deletePerk = async (req: Request, res: Response) => {
   }
 };
 
-export const perk = { getAllPerks, getOnePerk, register, update, deletePerk };
+const findShopPerk = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.body;
+    const perk: any = await PerkModel.find({ shop: id });
+    if (perk) return apiResponse.successResponse(res, "Perk delete Success.");
+    return apiResponse.notFoundResponse(res, "Perk not found");
+  } catch (e) {
+    return apiResponse.ErrorResponse(res, (e as Error).message);
+  }
+};
+
+export const perk = {
+  getAllPerks,
+  getOnePerk,
+  register,
+  update,
+  deletePerk,
+  findShopPerk,
+};

@@ -47,6 +47,8 @@ router.put(
   PerkController.update
 );
 
+router.post("/:shopId", PerkController.findShopPerk);
+
 // /** to delete a perk */
 router.delete("/:id", PerkController.deletePerk);
 

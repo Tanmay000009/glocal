@@ -1,6 +1,6 @@
 import { Schema, model, Document, ObjectId } from "mongoose";
 
-interface Perk extends Document {
+export interface Perk extends Document {
   perkName: string;
   shop: ObjectId;
   type: string;
