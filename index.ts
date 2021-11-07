@@ -8,6 +8,7 @@ import UserRoutes from "./app/routes/user";
 import ShopRoutes from "./app/routes/shop";
 import PerkRoutes from "./app/routes/perks";
 import AuthRouter from "./app/routes/auth";
+import TransactionRouter from "./app/routes/transaction";
 import initializeMongoDB from "./app/database/db";
 
 initializeMongoDB();
@@ -31,5 +32,7 @@ app.use("/api/users", UserRoutes);
 app.use("/api/auth", AuthRouter);
 app.use("/api/shops", ShopRoutes);
 app.use("/api/perks", PerkRoutes);
+app.use("/api/perks", PerkRoutes);
+app.use("/api/transaction", TransactionRouter);
 
 app.listen(PORT, () => console.log(`Running on ${PORT} ⚡`));
