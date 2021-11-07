@@ -27,7 +27,7 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(cors());
 app.get("/", (req: Request, res: Response) => {
-  res.send("<h1>Hello from the TS world!</h1>");
+  res.send("<h1>👋🏻 Hello from Glocal-Shop</h1>");
 });
 
 app.use("/api/users", UserRoutes);
