@@ -3,52 +3,56 @@ import { Request, Response } from "express";
 
 /** load peer modules and services */
 import { apiResponse } from "../helpers/apiResponse";
-import { PerkModel } from "../models/perk";
+import { ShopModel } from "../models/shop";
 
-const getAllPerks = async (req: Request, res: Response) => {
+const getAllShops = async (req: Request, res: Response) => {
   try {
-    const perkList = await PerkModel.find({});
+    const shopList = await ShopModel.find({});
     return apiResponse.successResponseWithData(
       res,
       "Operation success",
-      perkList
+      shopList
     );
   } catch (e) {
     return apiResponse.ErrorResponse(res, (e as Error).message);
   }
 };
 
-const getOnePerk = async (req: Request, res: Response) => {
+const getOneShop = async (req: Request, res: Response) => {
   try {
-    const perk = await PerkModel.findById(req.params.id);
-    if (perk)
+    const shop = await ShopModel.findById(req.params.id);
+    if (shop)
       return apiResponse.successResponseWithData(
         res,
         "Operation success",
-        perk
+        shop
       );
-    return apiResponse.notFoundResponse(res, "Perk not found");
+    return apiResponse.notFoundResponse(res, "Shop not found");
   } catch (e) {
     return apiResponse.ErrorResponse(res, (e as Error).message);
   }
 };
 
 const register = async (req: Request, res: Response) => {
-  const { shop, type, value, feedback, perkName, maxValue } = req.body;
+  const { name, email, avatar, password, phoneNum, address, balance } =
+    req.body;
   try {
-    const perk = new PerkModel({
-      shop,
-      type,
-      value,
-      feedback,
-      perkName,
-      maxValue,
+    const customId = `${phoneNum}@glocal`;
+    const shop = new ShopModel({
+      name,
+      email,
+      avatar,
+      password,
+      phoneNum,
+      address,
+      balance,
+      customId,
     });
-    const newPerk = await perk.save();
+    const newShop = await shop.save();
     return apiResponse.successResponseWithData(
       res,
       "Operation success",
-      newPerk
+      newShop
     );
   } catch (e) {
     return apiResponse.ErrorResponse(res, (e as Error).message);
@@ -57,28 +61,28 @@ const register = async (req: Request, res: Response) => {
 
 const update = async (req: Request, res: Response) => {
   try {
-    const perk = await PerkModel.findByIdAndUpdate(req.params.id, req.body);
-    if (perk) {
+    const shop = await ShopModel.findByIdAndUpdate(req.params.id, req.body);
+    if (shop) {
       return apiResponse.successResponseWithData(
         res,
         "Operation success",
-        perk
+        shop
       );
     }
-    return apiResponse.notFoundResponse(res, "Perk not found");
+    return apiResponse.notFoundResponse(res, "Shop not found");
   } catch (e) {
     return apiResponse.ErrorResponse(res, (e as Error).message);
   }
 };
 
-const deletePerk = async (req: Request, res: Response) => {
+const deleteShop = async (req: Request, res: Response) => {
   try {
-    const perk = await PerkModel.findByIdAndDelete(req.params.id);
-    if (perk) return apiResponse.successResponse(res, "Perk delete Success.");
-    return apiResponse.notFoundResponse(res, "Perk not found");
+    const shop = await ShopModel.findByIdAndDelete(req.params.id);
+    if (shop) return apiResponse.successResponse(res, "Shop delete Success.");
+    return apiResponse.notFoundResponse(res, "Shop not found");
   } catch (e) {
     return apiResponse.ErrorResponse(res, (e as Error).message);
   }
 };
 
-export const perk = { getAllPerks, getOnePerk, register, update, deletePerk };
+export const shop = { getAllShops, getOneShop, register, update, deleteShop };

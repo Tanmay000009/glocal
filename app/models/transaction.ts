@@ -9,6 +9,7 @@ interface Transaction extends Document {
   perk: ObjectId;
   amount: number;
   discountedAmount: number;
+  CashbackAmount: number;
   perkValue: number;
   userName: string;
   shopName: string;
@@ -24,7 +25,7 @@ const schema = new Schema<Transaction>(
   {
     type: { type: String, required: true }, // credit or debit // all transactions for shop of type credit // for user add balance -> credit && pay to shop -> debit
     uid: { type: String, required: true }, // to search user
-    status: { type: String, required: true, default: "spam" }, // approved, unapproved, unsuccesful, spam
+    status: { type: String, required: true, default: "spam" }, // approved, unapproved, unsuccesful, spam, cashbackPending
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
     userName: { type: String, required: true },
     userCutomId: { type: String, required: true },
@@ -39,6 +40,7 @@ const schema = new Schema<Transaction>(
     amount: { type: Number, required: true },
     shopFeedback: { type: Number, max: 3, min: 1 },
     discountedAmount: { type: Number }, // Amount after applying discount if any
+    CashbackAmount: { type: Number }, // Amount of cashback a user receives
   },
   { timestamps: true }
 );

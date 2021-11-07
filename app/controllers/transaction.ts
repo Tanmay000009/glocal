@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 
 /** load peer modules and services */
 import { apiResponse } from "../helpers/apiResponse";
+import { PerkModel } from "../models/perk";
 import { ShopModel } from "../models/shop";
 import { TransactionModel } from "../models/transaction";
 import { UserModel, User } from "../models/user";
@@ -40,7 +41,7 @@ const getOneTransaction = async (req: Request, res: Response) => {
 };
 
 const register = async (req: Request, res: Response) => {
-  const { uid, perk, amount, perkValue, shopFeedback } = req.body;
+  const { uid, amount, shopFeedback, type } = req.body;
   const shop = req.params.id;
   const status = "unapproved";
   let userProfile: User | null;
@@ -67,9 +68,7 @@ const register = async (req: Request, res: Response) => {
       status,
       shop,
       user,
-      perk,
       amount,
-      perkValue,
       userName,
       shopName,
       userCutomId,
@@ -77,6 +76,7 @@ const register = async (req: Request, res: Response) => {
       userNumber,
       shopNumber,
       shopFeedback,
+      type,
     });
     const newTransaction = await transaction.save();
     apiResponse.successResponseWithData(
@@ -92,6 +92,9 @@ const register = async (req: Request, res: Response) => {
 
 const approve = async (req: Request, res: Response) => {
   try {
+    const { perk, discountedAmount, CashbackAmount, perkValue, perkType } =
+      req.body;
+    const Perk = await PerkModel.findById(perk);
     const transaction = await TransactionModel.findById(req.params.id);
     if (transaction) {
       const userId = transaction.user;
@@ -102,6 +105,100 @@ const approve = async (req: Request, res: Response) => {
         apiResponse.ErrorResponse(res, "Transaction not found");
         return;
       }
+      if (perk && perkType === "discount") {
+        if (!Perk) {
+          transaction.status = "spam";
+          await transaction.save();
+          apiResponse.ErrorResponse(res, "Unsuccesful transaction");
+          return;
+        }
+        if (parseInt(perkValue, 10) !== Perk.value) {
+          transaction.status = "spam";
+          await transaction.save();
+          apiResponse.ErrorResponse(res, "Unsuccesful transaction");
+          return;
+        }
+        let discountAmount = (transaction.amount * perkValue) / 100;
+        if (discountAmount > Perk.maxValue) discountAmount = Perk.maxValue;
+        discountAmount = transaction.amount - discountAmount;
+        if (discountAmount !== parseInt(discountedAmount, 10)) {
+          transaction.status = "spam";
+          await transaction.save();
+          apiResponse.ErrorResponse(res, "Unsuccesful transaction");
+          return;
+        }
+        if (user.balance && user.balance >= discountedAmount) {
+          user.balance -= discountedAmount;
+          await user.save();
+          transaction.status = "approved";
+          transaction.discountedAmount = discountAmount;
+          transaction.perkType = Perk.type;
+          transaction.perk = Perk._id;
+          transaction.perkValue = Perk.value;
+          await transaction.save();
+          apiResponse.successResponseWithData(
+            res,
+            "Transaction succesful",
+            transaction
+          );
+          return;
+        }
+        transaction.status = "unsuccesful";
+        await transaction.save();
+        apiResponse.successResponseWithData(
+          res,
+          "Transaction cancelled due to insufficent funds",
+          transaction
+        );
+        return;
+      }
+      if (perk && perkType === "cashback") {
+        if (!Perk) {
+          transaction.status = "spam";
+          await transaction.save();
+          apiResponse.ErrorResponse(res, "Unsuccesful transaction");
+          return;
+        }
+        if (parseInt(perkValue, 10) !== Perk.value) {
+          transaction.status = "spam";
+          await transaction.save();
+          apiResponse.ErrorResponse(res, "Unsuccesful transaction");
+          return;
+        }
+        let cashbackAmount = (transaction.amount * perkValue) / 100;
+        if (cashbackAmount > Perk.maxValue) cashbackAmount = Perk.maxValue;
+        if (cashbackAmount !== parseInt(CashbackAmount, 10)) {
+          transaction.status = "spam";
+          await transaction.save();
+          apiResponse.ErrorResponse(res, "Unsuccesful transaction");
+          return;
+        }
+        if (user.balance && user.balance >= transaction.amount) {
+          user.balance -= transaction.amount;
+          await user.save();
+          transaction.status = "cashbackPending";
+          transaction.CashbackAmount = cashbackAmount;
+          transaction.perkType = Perk.type;
+          transaction.perk = Perk._id;
+          transaction.perkValue = Perk.value;
+          await transaction.save();
+          apiResponse.successResponseWithData(
+            res,
+            "Transaction succesful",
+            transaction
+          );
+          return;
+        }
+        transaction.status = "unsuccesful";
+        await transaction.save();
+        apiResponse.successResponseWithData(
+          res,
+          "Transaction cancelled due to insufficent funds",
+          transaction
+        );
+        return;
+      }
+
       if (
         user.balance &&
         transaction.amount &&
@@ -154,10 +251,46 @@ const cancel = async (req: Request, res: Response) => {
   }
 };
 
+/** To deposit cashback in users account */
+const cashback = async (req: Request, res: Response) => {
+  try {
+    const transaction = await TransactionModel.findById(req.params.id);
+    if (!transaction) {
+      apiResponse.notFoundResponse(res, "Transaction not found!");
+      return;
+    }
+    if (transaction.status !== "cashbackPending") {
+      transaction.status = "spam";
+      await transaction.save();
+      apiResponse.ErrorResponse(res, "Invalid transaction! ");
+      return;
+    }
+    const userId = transaction.user;
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      transaction.status = "spam";
+      await transaction.save();
+      apiResponse.ErrorResponse(res, "Invalid transaction! ");
+      return;
+    }
+    let bal = user.balance;
+    bal += transaction.CashbackAmount;
+    user.balance = bal;
+    await user.save();
+    transaction.status = "approved";
+    await transaction.save();
+    apiResponse.successResponseWithData(res, "Cashback processed", transaction);
+    return;
+  } catch (e) {
+    apiResponse.ErrorResponse(res, (e as Error).message);
+  }
+};
+
 export const transaction = {
   getAllTransactions,
   getOneTransaction,
   register,
   approve,
   cancel,
+  cashback,
 };

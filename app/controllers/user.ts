@@ -78,7 +78,9 @@ const update = async (req: Request, res: Response) => {
 
 const deleteUser = async (req: Request, res: Response) => {
   try {
-    res.send("Cannot be processed!");
+    // Delete user
+    // return apiResponse.successResponse(res, "User delete Success.");
+    res.send("Hi!");
   } catch (e) {
     apiResponse.ErrorResponse(res, (e as Error).message);
   }
