@@ -1,6 +1,7 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model, Document, ObjectId } from "mongoose";
 
 export interface User extends Document {
+  _id: ObjectId;
   name: string;
   email: string;
   avatar: string;
