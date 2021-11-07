@@ -2,10 +2,7 @@ import { Router } from "express";
 
 // /** load the service */
 import { user as UserController } from "../controllers/user";
-// import {
-//   userValidationRules,
-//   validate,
-// } from "../app/validators/user.validator";
+import { userValidationRules, validate } from "../validators/user";
 
 const router: Router = Router();
 
@@ -16,10 +13,10 @@ router.get("/", UserController.getAllUsers);
 router.get("/:id", UserController.getOneUser);
 
 /** to register a user */
-router.post("/", UserController.register);
+router.post("/", userValidationRules(), validate, UserController.register);
 
 // /** to update a user */
-router.put("/:id", UserController.update);
+router.put("/:id", userValidationRules(), validate, UserController.update);
 
 // /** to delete a user */
 // router.delete("/:id", UserController.deleteUser);
