@@ -69,8 +69,11 @@ const authenticate = async (req: Request, res: Response) => {
       apiResponse.notFoundResponse(res, "User not found");
       return;
     }
+    const match = await compare(password, user.password);
+    console.log({ password, match });
+    console.log(user.password);
     // verify user
-    if (!(await compare(password, user.password))) {
+    if (!match) {
       apiResponse.unauthorizedResponse(res, "Could not authenticate");
       return;
     }
