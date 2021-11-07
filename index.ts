@@ -10,6 +10,7 @@ import PerkRoutes from "./app/routes/perks";
 import AuthRouter from "./app/routes/auth";
 import TransactionRouter from "./app/routes/transaction";
 import CashBackRouter from "./app/routes/cashback";
+import LoanRouter from "./app/routes/loan";
 import initializeMongoDB from "./app/database/db";
 
 initializeMongoDB();
@@ -36,5 +37,6 @@ app.use("/api/perks", PerkRoutes);
 app.use("/api/perks", PerkRoutes);
 app.use("/api/transaction", TransactionRouter);
 app.use("/api/cashback", CashBackRouter);
+app.use("/api/loan", LoanRouter);
 
 app.listen(PORT, () => console.log(`Running on ${PORT} ⚡`));
