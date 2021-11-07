@@ -23,7 +23,7 @@ interface Transaction extends Document {
 
 const schema = new Schema<Transaction>(
   {
-    type: { type: String, required: true }, // credit or debit // all transactions for shop of type credit // for user add balance -> credit && pay to shop -> debit
+    type: { type: String, required: true }, // credit or debit or cashback // all transactions for shop of type credit // for user add balance -> credit && pay to shop -> debit
     uid: { type: String, required: true }, // to search user
     status: { type: String, required: true, default: "spam" }, // approved, unapproved, unsuccesful, spam, cashbackPending
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },

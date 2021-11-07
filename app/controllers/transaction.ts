@@ -1,5 +1,6 @@
 /** load required packages */
 import { Request, Response } from "express";
+import { ObjectId } from "mongoose";
 
 /** load peer modules and services */
 import { apiResponse } from "../helpers/apiResponse";
@@ -7,6 +8,37 @@ import { PerkModel } from "../models/perk";
 import { ShopModel } from "../models/shop";
 import { TransactionModel } from "../models/transaction";
 import { UserModel, User } from "../models/user";
+
+/** To deposit cashback in users account */
+const cashback = async (transactionId: ObjectId): Promise<string> => {
+  try {
+    const transaction = await TransactionModel.findById(transactionId);
+    if (!transaction) {
+      return "Transaction not found!";
+    }
+    if (transaction.status !== "cashbackPending") {
+      transaction.status = "spam";
+      await transaction.save();
+      return "Invalid transaction!";
+    }
+    const userId = transaction.user;
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      transaction.status = "spam";
+      await transaction.save();
+      return "Invalid transaction! ";
+    }
+    let bal = user.balance;
+    bal += transaction.CashbackAmount;
+    user.balance = bal;
+    await user.save();
+    transaction.status = "approved";
+    await transaction.save();
+    return "success Cashback processed";
+  } catch (e) {
+    return (e as Error).message;
+  }
+};
 
 const getAllTransactions = async (req: Request, res: Response) => {
   try {
@@ -198,6 +230,11 @@ const approve = async (req: Request, res: Response) => {
           Perk.generatedRevenue += transaction.amount;
           await Perk.save();
           await transaction.save();
+          const cashBackRes = await cashback(transaction._id);
+          if (!cashBackRes.includes("success")) {
+            apiResponse.ErrorResponse(res, cashBackRes);
+            return;
+          }
           apiResponse.successResponseWithData(
             res,
             "Transaction succesful",
@@ -261,41 +298,6 @@ const cancel = async (req: Request, res: Response) => {
       return;
     }
     apiResponse.notFoundResponse(res, "Transaction not found");
-    return;
-  } catch (e) {
-    apiResponse.ErrorResponse(res, (e as Error).message);
-  }
-};
-
-/** To deposit cashback in users account */
-const cashback = async (req: Request, res: Response) => {
-  try {
-    const transaction = await TransactionModel.findById(req.params.id);
-    if (!transaction) {
-      apiResponse.notFoundResponse(res, "Transaction not found!");
-      return;
-    }
-    if (transaction.status !== "cashbackPending") {
-      transaction.status = "spam";
-      await transaction.save();
-      apiResponse.ErrorResponse(res, "Invalid transaction! ");
-      return;
-    }
-    const userId = transaction.user;
-    const user = await UserModel.findById(userId);
-    if (!user) {
-      transaction.status = "spam";
-      await transaction.save();
-      apiResponse.ErrorResponse(res, "Invalid transaction! ");
-      return;
-    }
-    let bal = user.balance;
-    bal += transaction.CashbackAmount;
-    user.balance = bal;
-    await user.save();
-    transaction.status = "approved";
-    await transaction.save();
-    apiResponse.successResponseWithData(res, "Cashback processed", transaction);
     return;
   } catch (e) {
     apiResponse.ErrorResponse(res, (e as Error).message);
