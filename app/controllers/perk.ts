@@ -85,21 +85,12 @@ const update = async (req: Request, res: Response) => {
   }
 };
 
-const deletePerk = async (req: Request, res: Response) => {
-  try {
-    const perk = await PerkModel.findByIdAndDelete(req.params.id);
-    if (perk) return apiResponse.successResponse(res, "Perk delete Success.");
-    return apiResponse.notFoundResponse(res, "Perk not found");
-  } catch (e) {
-    return apiResponse.ErrorResponse(res, (e as Error).message);
-  }
-};
-
 const findShopPerk = async (req: Request, res: Response) => {
   try {
     const { id } = req.body;
     const perk: any = await PerkModel.find({ shop: id });
-    if (perk) return apiResponse.successResponse(res, "Perk delete Success.");
+    if (perk)
+      return apiResponse.successResponseWithData(res, "Perks found", perk);
     return apiResponse.notFoundResponse(res, "Perk not found");
   } catch (e) {
     return apiResponse.ErrorResponse(res, (e as Error).message);
@@ -111,6 +102,5 @@ export const perk = {
   getOnePerk,
   register,
   update,
-  deletePerk,
   findShopPerk,
 };

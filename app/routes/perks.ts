@@ -47,10 +47,7 @@ router.put(
   PerkController.update
 );
 
-router.post("/:shopId", PerkController.findShopPerk);
-
-// /** to delete a perk */
-router.delete("/:id", PerkController.deletePerk);
+router.post("/findPerks", PerkController.findShopPerk);
 
 /** export the routes to be binded to application */
 export default router;
