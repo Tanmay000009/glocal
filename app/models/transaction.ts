@@ -5,15 +5,15 @@ interface Transaction extends Document {
   shop: ObjectId;
   user: ObjectId;
   perk: ObjectId;
-  amount?: Number;
-  perkValue?: Number;
+  amount: number;
+  perkValue: number;
   userName: string;
   shopName: string;
   userId: string;
   shopId: string;
-  userNumber?: Number;
-  shopNumber?: Number;
-  shopFeedback?: Number;
+  userNumber: number;
+  shopNumber: number;
+  shopFeedback: number;
 }
 
 const schema = new Schema<Transaction>(

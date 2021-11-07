@@ -3,13 +3,13 @@ import { Schema, model, Document } from "mongoose";
 export interface Shop extends Document {
   name: string;
   email: string;
-  avatar?: string;
+  avatar: string;
   password: string;
   phoneNum: string;
   address: string;
-  balance?: Number;
+  balance: number;
   customId: string;
-  earning?: Number;
+  earning: number;
 }
 
 const schema = new Schema<Shop>({

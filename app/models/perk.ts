@@ -3,8 +3,8 @@ import { Schema, model, Document, ObjectId } from "mongoose";
 interface Perk extends Document {
   shop: ObjectId;
   type: string;
-  value?: Number;
-  feedback?: Number;
+  value: number;
+  feedback: number;
 }
 
 const schema = new Schema<Perk>(

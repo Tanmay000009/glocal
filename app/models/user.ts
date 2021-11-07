@@ -3,11 +3,11 @@ import { Schema, model, Document } from "mongoose";
 export interface User extends Document {
   name: string;
   email: string;
-  avatar?: string;
+  avatar: string;
   password: string;
   phoneNum: string;
   address: string;
-  balance?: Number;
+  balance: number;
   customId: string;
   dob: string;
 }
