@@ -200,10 +200,9 @@ const approve = async (req: Request, res: Response) => {
         }
         transaction.status = "unsuccesful";
         await transaction.save();
-        apiResponse.successResponseWithData(
+        apiResponse.ErrorResponse(
           res,
-          "Transaction cancelled due to insufficent funds",
-          transaction
+          "Transaction cancelled due to insufficent funds"
         );
         return;
       }
@@ -262,10 +261,9 @@ const approve = async (req: Request, res: Response) => {
         }
         transaction.status = "unsuccesful";
         await transaction.save();
-        apiResponse.successResponseWithData(
+        apiResponse.ErrorResponse(
           res,
-          "Transaction cancelled due to insufficent funds",
-          transaction
+          "Transaction cancelled due to insufficent funds"
         );
         return;
       }
